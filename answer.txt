@@ -1,0 +1,61 @@
+#1.1.2
+m = LpProblem()
+m += lpDot(a.輸送費, a.Var)
+for k, v in a.groupby('倉庫'):
+    m += lpSum(v.Var) <= 供給[k]
+for k, v in a.groupby('工場'):
+    m += lpSum(v.Var) >= 需要[k]
+m.solve()
+a['Val'] = a.Var.apply(value)
+a[a.Val > 0]
+
+#1.1.3
+m = LpProblem(sense=LpMaximize)
+a['Var'] = addvars(len(a), cat=LpBinary)
+m += lpDot(a.希望度, a.Var)
+for k, v in a.groupby('学生'):
+    m += lpSum(v.Var) == 1
+for k, v in a.groupby('研究室'):
+    m += lpSum(v.Var) <= 5
+m.solve()
+a['Val'] = a.Var.apply(value)
+a[a.Val > 0][:3]
+
+#1.1.4
+m = LpProblem(sense=LpMaximize)
+a['Var'] = addvars(len(a), cat=LpBinary)
+m += lpDot(a.便益, a.Var)
+m += lpDot(a.費用, a.Var) <= 20
+m.solve()
+a['Val'] = a.Var.apply(value)
+a[a.Val > 0]
+
+#1.1.5
+m = LpProblem(sense=LpMaximize)
+a['VarX'] = addvars(3)
+a['VarZ'] = addvars(3, cat=LpBinary)
+m += lpDot(a.利益, a.VarX) - lpDot(a.固定費用, a.VarZ)
+m += lpSum(a.VarX) <= 15
+for _, r in a.iterrows():
+    m += r.VarX <= r.上限 * r.VarZ
+m.solve()
+a['Val'] = a.VarX.apply(value)
+a[a.Val > 0]
+
+#1.1.6
+m = LpProblem(sense=LpMaximize)
+a['VarX'] = addvars(3)
+a['VarZ'] = addvars(3, cat=LpBinary)
+VarLo, VarUp = addvars(2)
+m += lpDot(a.利益, a.VarX) - lpDot(a.固定費用, a.VarZ)
+m += lpSum(a.VarX) <= 15
+for _, r in a.iterrows():
+    m += r.VarX <= r.上限 * r.VarZ
+    m += VarLo <= r.VarX
+    m += r.VarX <= VarUp
+m += VarUp - VarLo <= 2
+m.solve()
+a['Val'] = a.VarX.apply(value)
+a[a.Val > 0]
+
+
